@@ -9,10 +9,6 @@ import "./App.css";
 
 import Layout from "./layout";
 
-if (__DEV__) {
-  import("./ReactotronConfig").then(() => console.log("Reactotron Configured"));
-}
-
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {

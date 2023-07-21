@@ -345,7 +345,7 @@ function DriverView({ driver: driverProps }) {
                     radius={50}
                   />
                 </Grid.Col>
-                <Grid.Col sm={8} style={{ paddingLeft: 50 }}>
+                <Grid.Col sm={6} style={{ paddingLeft: 50 }}>
                   <Flex align="flex-start" justify="center" direction="column">
                     <Text size={15} fw={500}>{`Name ${driver?.name}`}</Text>
                     <Text
@@ -367,10 +367,10 @@ function DriverView({ driver: driverProps }) {
                     >{`Blood Type - ${driver?.bloodType}`}</Text>
                   </Flex>
                 </Grid.Col>
-                <Grid.Col sm={2}>
+                <Grid.Col sm={4}>
                   <QRCode
-                    style={{ height: "100", width: "100" }}
-                    value={JSON.stringify(driver)}
+                    style={{ height: "200", width: "200" }}
+                    value={JSON.stringify({ ...driver, vehicles: [] })}
                     viewBox={`0 0 256 256`}
                   />
                 </Grid.Col>
