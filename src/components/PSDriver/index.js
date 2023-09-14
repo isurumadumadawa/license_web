@@ -14,6 +14,8 @@ import {
   Badge,
 } from "@mantine/core";
 import { useSelector, useDispatch } from "react-redux";
+import { useForm } from "@mantine/form";
+import moment from "moment";
 import {
   IconPhone,
   IconIndentDecrease,
@@ -26,12 +28,14 @@ import { QrScanner } from "@yudiel/react-qr-scanner";
 
 import { getRules, selectRules } from "../../app/slices/RuleSlice";
 import { getStations, selectStations } from "../../app/slices/PSSlice";
+import { getDriverByMobile, selectDriver } from "../../app/slices/DriverSlice";
 import VehicleData from "../../Data/vehicle.json";
 
 function PSDriver() {
   const dispatch = useDispatch();
   const rules = useSelector(selectRules);
   const stations = useSelector(selectStations);
+  const driver = useSelector(selectDriver);
 
   useEffect(() => {
     dispatch(getRules());
@@ -51,6 +55,26 @@ function PSDriver() {
   useEffect(() => {
     console.log("vehicles...........", VehicleData);
   }, [VehicleData]);
+
+  useEffect(() => {
+    console.log("driver...........", driver);
+  }, [driver]);
+
+  const form = useForm({
+    initialValues: {
+      mobileNumber: "",
+    },
+    validateInputOnBlur: true,
+    validateInputOnChange: true,
+    validate: {
+      mobileNumber: (value) =>
+        value.trim().length == 10 ? null : "Mobile number is required!",
+    },
+  });
+
+  const onGetDriver = () => {
+    dispatch(getDriverByMobile({ mobileNumber: form?.values?.mobileNumber }));
+  };
 
   const elements = [
     { position: 6, mass: 12.011, symbol: "C", name: "Carbon" },
@@ -90,7 +114,41 @@ function PSDriver() {
           paddingRight: 50,
         }}
       >
-        <Grid.Col md={3}>
+        <Grid.Col md={12}>
+          <form style={{ width: "100%" }} onSubmit={form.onSubmit(onGetDriver)}>
+            <Grid>
+              <Grid.Col md={9}>
+                <TextInput
+                  mt="xl"
+                  //label="Use Name"
+                  inputWrapperOrder={["label", "input", "description", "error"]}
+                  variant="default"
+                  {...form.getInputProps("mobileNumber")}
+                  icon={<IconUser size={20} />}
+                />
+              </Grid.Col>
+              <Grid.Col md={3}>
+                <Button
+                  style={{
+                    marginTop: 25,
+                  }}
+                  fullWidth
+                  disabled={!form.isValid()}
+                  type="submit"
+                >
+                  Search Driver
+                </Button>
+              </Grid.Col>
+            </Grid>
+          </form>
+        </Grid.Col>
+        <Grid.Col
+          md={3}
+          style={{
+            marginTop: 10,
+            marginBottom: 20,
+          }}
+        >
           <QrScanner
             onDecode={(result) => console.log(result)}
             onError={(error) => console.log(error?.message)}
@@ -101,7 +159,11 @@ function PSDriver() {
             <Grid.Col md={3}>
               <Avatar
                 mt="xl"
-                src="https://static.vecteezy.com/system/resources/previews/000/439/863/original/vector-users-icon.jpg"
+                src={
+                  driver?.image
+                    ? driver?.image
+                    : "https://static.vecteezy.com/system/resources/previews/000/439/863/original/vector-users-icon.jpg"
+                }
                 size={"100%"}
                 radius="xl"
               />
@@ -120,7 +182,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.name}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -135,7 +197,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.otherName}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -150,7 +212,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.gender}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -165,7 +227,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.mobileNumber}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -180,7 +242,11 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={
+                      driver?.dob
+                        ? moment(new Date(driver?.dob)).format("MM-DD-YYYY")
+                        : ""
+                    }
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -195,7 +261,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.bloodType}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -210,7 +276,7 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={driver?.address}
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -225,7 +291,13 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={
+                      driver?.dob
+                        ? moment(new Date(driver?.issuedDate)).format(
+                            "MM-DD-YYYY"
+                          )
+                        : ""
+                    }
                   />
                 </Grid.Col>
                 <Grid.Col md={4}>
@@ -240,7 +312,13 @@ function PSDriver() {
                     ]}
                     variant="default"
                     icon={<IconUser size={20} />}
-                    value="value"
+                    value={
+                      driver?.dob
+                        ? moment(new Date(driver?.expireDate)).format(
+                            "MM-DD-YYYY"
+                          )
+                        : ""
+                    }
                   />
                 </Grid.Col>
               </Grid>

@@ -5,6 +5,7 @@ import {
   createDriverService,
   getDriversService,
   getDriverService,
+  getDriverByMobileService,
 } from "../../Services/DriverAPI";
 
 const initialState = {
@@ -66,6 +67,14 @@ export const getDriver = createAsyncThunk("driver/get", async ({ uuid }) => {
   return response.data;
 });
 
+export const getDriverByMobile = createAsyncThunk(
+  "driver/getByMobile",
+  async ({ mobileNumber }) => {
+    const response = await getDriverByMobileService({ mobileNumber });
+    return response.data;
+  }
+);
+
 export const driverSlice = createSlice({
   name: "driver",
   initialState,
@@ -124,6 +133,17 @@ export const driverSlice = createSlice({
         state.driver = action?.payload;
       })
       .addCase(getDriver.rejected, (state) => {
+        state.status = "failed";
+        state.driver = {};
+      })
+      .addCase(getDriverByMobile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(getDriverByMobile.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.driver = action?.payload;
+      })
+      .addCase(getDriverByMobile.rejected, (state) => {
         state.status = "failed";
         state.driver = {};
       });

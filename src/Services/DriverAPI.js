@@ -94,3 +94,13 @@ export const getDriverService = ({ uuid }) => {
     },
   });
 };
+
+export const getDriverByMobileService = ({ mobileNumber }) => {
+  return axios({
+    method: "GET",
+    url: `${envVariables.REACT_APP_API_BASE_URL}/driver/mobile/${mobileNumber}`,
+    headers: {
+      "x-auth-token": sessionStorage.getItem("token"),
+    },
+  });
+};
