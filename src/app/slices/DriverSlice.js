@@ -69,7 +69,12 @@ export const getDriver = createAsyncThunk("driver/get", async ({ uuid }) => {
 export const driverSlice = createSlice({
   name: "driver",
   initialState,
-  reducers: {},
+  reducers: {
+    copyDriver: (state, action) => {
+      state.status = "idle";
+      state.driver = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createDriver.pending, (state) => {
@@ -128,5 +133,7 @@ export const driverSlice = createSlice({
 export const selectCreatedDriver = (state) => state.driver.createdDriver;
 export const selectDrivers = (state) => state.driver.drivers;
 export const selectDriver = (state) => state.driver.driver;
+
+export const { copyDriver } = driverSlice.actions;
 
 export default driverSlice.reducer;

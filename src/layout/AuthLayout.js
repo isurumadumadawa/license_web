@@ -3,7 +3,7 @@ import { AppShell } from "@mantine/core";
 
 import Header from "../components/Header";
 import Navbar from "../components/Navbar";
-import { DTMNavigation } from "../navigation";
+import { DTMNavigation, PSNavigation } from "../navigation";
 
 function AuthLayout() {
   return (
@@ -12,9 +12,10 @@ function AuthLayout() {
         padding="md"
         layout="default"
         header={<Header />}
-        navbar={<Navbar />}
+        navbar={sessionStorage.getItem("roleId") == 2 ? <Navbar /> : null}
       >
         {sessionStorage.getItem("roleId") == 2 ? <DTMNavigation /> : null}
+        {sessionStorage.getItem("roleId") == 4 ? <PSNavigation /> : null}
       </AppShell>
     </>
   );
