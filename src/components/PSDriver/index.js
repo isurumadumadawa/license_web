@@ -29,6 +29,7 @@ import { QrScanner } from "@yudiel/react-qr-scanner";
 import { getRules, selectRules } from "../../app/slices/RuleSlice";
 import { getStations, selectStations } from "../../app/slices/PSSlice";
 import { getDriverByMobile, selectDriver } from "../../app/slices/DriverSlice";
+import { getPenalties, selectPenalty } from "../../app/slices//PenaltySlice";
 import VehicleData from "../../Data/vehicle.json";
 
 function PSDriver() {
@@ -36,6 +37,7 @@ function PSDriver() {
   const rules = useSelector(selectRules);
   const stations = useSelector(selectStations);
   const driver = useSelector(selectDriver);
+  const penalties = useSelector(selectPenalty);
 
   useEffect(() => {
     dispatch(getRules());
@@ -58,7 +60,12 @@ function PSDriver() {
 
   useEffect(() => {
     console.log("driver...........", driver);
+    if (driver?.id) dispatch(getPenalties({ driverId: driver?.id }));
   }, [driver]);
+
+  useEffect(() => {
+    console.log("penalties...........", penalties);
+  }, [penalties]);
 
   const form = useForm({
     initialValues: {
@@ -83,22 +90,23 @@ function PSDriver() {
     { position: 56, mass: 137.33, symbol: "Ba", name: "Barium" },
     { position: 58, mass: 140.12, symbol: "Ce", name: "Cerium" },
   ];
-  const rows = elements.map((element) => (
-    <tr key={element.name}>
-      <td>{element.position}</td>
+  const rows = penalties?.map((penalty) => (
+    <tr key={penalty?.id}>
+      <td>{penalty?.id}</td>
       <td>
         <Flex direction="column" gap="sm">
           <Badge>Driving without a valid fitness certificate</Badge>
           <Badge>Driving without registration</Badge>
         </Flex>
       </td>
-      <td>Wp KD 7826</td>
-      <td>A1</td>
-      <td>Kandy Police Area</td>
-      <td>2023/08/04</td>
-      <td>2023/08/04</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>{penalty?.vehicle?.category}</td>
+      <td>{penalty?.vehicleNumber}</td>
+      <td>{penalty?.policeArea?.name}</td>
+      <td>{penalty?.issuedDate}</td>
+      <td>{penalty?.expireDate}</td>
+      <td>{penalty?.isCourt ? "Yes" : "No"}</td>
+      <td>{penalty?.isActive ? "Yes" : "No"}</td>
+
       <td>
         <Button>Close</Button>
       </td>
