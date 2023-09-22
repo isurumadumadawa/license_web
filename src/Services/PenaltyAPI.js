@@ -12,10 +12,10 @@ export const getPenaltyService = ({ driverId }) => {
   });
 };
 
-export const updatePenaltyService = ({ driverId }) => {
+export const updatePenaltyService = ({ penatyId }) => {
   return axios({
     method: "PUT",
-    url: `${envVariables.REACT_APP_API_BASE_URL}/panelty/${driverId}`,
+    url: `${envVariables.REACT_APP_API_BASE_URL}/panelty/${penatyId}`,
     headers: {
       "x-auth-token": sessionStorage.getItem("token"),
     },

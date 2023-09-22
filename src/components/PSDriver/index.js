@@ -25,11 +25,13 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { QrScanner } from "@yudiel/react-qr-scanner";
+import { notifications } from "@mantine/notifications";
 
 import { getRules, selectRules } from "../../app/slices/RuleSlice";
 import { getStations, selectStations } from "../../app/slices/PSSlice";
 import { getDriverByMobile, selectDriver } from "../../app/slices/DriverSlice";
 import { getPenalties, selectPenalty } from "../../app/slices//PenaltySlice";
+import { updatePenaltyService } from "../../Services/PenaltyAPI";
 import VehicleData from "../../Data/vehicle.json";
 
 function PSDriver() {
@@ -83,35 +85,69 @@ function PSDriver() {
     dispatch(getDriverByMobile({ mobileNumber: form?.values?.mobileNumber }));
   };
 
-  const elements = [
-    { position: 6, mass: 12.011, symbol: "C", name: "Carbon" },
-    { position: 7, mass: 14.007, symbol: "N", name: "Nitrogen" },
-    { position: 39, mass: 88.906, symbol: "Y", name: "Yttrium" },
-    { position: 56, mass: 137.33, symbol: "Ba", name: "Barium" },
-    { position: 58, mass: 140.12, symbol: "Ce", name: "Cerium" },
-  ];
-  const rows = penalties?.map((penalty) => (
-    <tr key={penalty?.id}>
-      <td>{penalty?.id}</td>
-      <td>
-        <Flex direction="column" gap="sm">
-          <Badge>Driving without a valid fitness certificate</Badge>
-          <Badge>Driving without registration</Badge>
-        </Flex>
-      </td>
-      <td>{penalty?.vehicle?.category}</td>
-      <td>{penalty?.vehicleNumber}</td>
-      <td>{penalty?.policeArea?.name}</td>
-      <td>{penalty?.issuedDate}</td>
-      <td>{penalty?.expireDate}</td>
-      <td>{penalty?.isCourt ? "Yes" : "No"}</td>
-      <td>{penalty?.isActive ? "Yes" : "No"}</td>
+  const onUpdatePenalty = async ({ penatyId, driverId }) => {
+    try {
+      const result = await updatePenaltyService({ penatyId });
 
-      <td>
-        <Button>Close</Button>
-      </td>
-    </tr>
-  ));
+      dispatch(getPenalties({ driverId }));
+    } catch (error) {
+      notifications.show({
+        title: "Something Wrong !",
+        message: "Can't Update Penalty",
+        color: "red",
+      });
+    }
+  };
+
+  const rows = penalties?.map((penalty) => {
+    let totPenalty = 0;
+
+    penalty?.panelties?.map((p, i) => (totPenalty = totPenalty + p?.penalty));
+
+    return (
+      <tr key={penalty?.id}>
+        <td>{penalty?.id}</td>
+        <td>
+          <Flex direction="column" gap="sm">
+            {penalty?.panelties?.map((p, i) => {
+              return <Badge key={i}>{p?.name}</Badge>;
+            })}
+          </Flex>
+        </td>
+        <td>{`RS ${totPenalty}.00`}</td>
+        <td>{penalty?.vehicle?.category}</td>
+        <td>{penalty?.vehicleNumber}</td>
+        <td>{penalty?.policeArea?.name}</td>
+        <td>
+          {penalty?.issuedDate
+            ? moment(new Date(penalty?.issuedDate)).format("MM-DD-YYYY")
+            : ""}
+        </td>
+        <td>
+          {penalty?.expireDate
+            ? moment(new Date(penalty?.expireDate)).format("MM-DD-YYYY")
+            : ""}
+        </td>
+        <td>{penalty?.isClosed ? "Completed" : "Pending"}</td>
+
+        <td>
+          {penalty?.isClosed ? null : (
+            <Button
+              type="button"
+              onClick={() => {
+                onUpdatePenalty({
+                  driverId: penalty?.driverId,
+                  penatyId: penalty?.id,
+                });
+              }}
+            >
+              Finalize
+            </Button>
+          )}
+        </td>
+      </tr>
+    );
+  });
   return (
     <div>
       <Grid
@@ -354,14 +390,14 @@ function PSDriver() {
               <tr>
                 <th>Penalty ID</th>
                 <th>Penalty</th>
+                <th>Amount</th>
                 <th>Vehicle Type</th>
                 <th>Vehicle Number</th>
                 <th>Police Area</th>
                 <th>Issued Date</th>
                 <th>Expire Date</th>
-                <th>Is Court</th>
-                <th>Is Active</th>
-                <th>Button</th>
+                <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>{rows}</tbody>
